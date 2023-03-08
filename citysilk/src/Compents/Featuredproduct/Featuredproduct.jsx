@@ -1,6 +1,7 @@
-import React from 'react'
+import React  from 'react'
 import Card from '../Card/Card'
 import "./Featuredproduct.scss"
+// import axios from "axios"
 
 const Featuredproduct = ({type}) => {
   const data=[
@@ -36,9 +37,23 @@ const Featuredproduct = ({type}) => {
       oldPrice:500,
       newPrice:400,
     },
-    
+  ];
+//  const [products,setProducts]=useState([])
 
-  ]
+//  useEffect(() =>{
+//   const fetchData = async ()=>{
+//     try{
+//       const data=await axios.get(process.env.REACT_APP_API_URL+"/products",{
+//        headers:{Authorization:"bearer"+ process.env.REACT_APP_API_TOKEN,}
+//       });
+//       console.log(data)
+//     }
+//     catch(err){
+//       console.log(err)
+//     }
+//   }
+// fetchData();
+//  },[])
   return (
     <div className='featuredproducts'>
       <div className='top'>
