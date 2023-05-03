@@ -5,9 +5,14 @@ import PermIdentityOutlinedIcon from '@mui/icons-material/PermIdentityOutlined';
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
 import "./Navbar.scss"
 import Cart from '../Cart/Cart';
+import { useSelector} from "react-redux"
+import Login from "../Login/Login"
 import {Link} from "react-router-dom"
 const Navbar = () => {
   const[open,setOpen]=useState(false)
+  const [close,setClose]=useState(false)
+  const products= useSelector(state=>state.cart.products)
+
   return (
 <div className='navbar'>
     <div className='wrapper'>
@@ -35,15 +40,16 @@ const Navbar = () => {
             <div className='icons'>
                 <SearchIcon/>
                 <PermIdentityOutlinedIcon/>
-                <FavoriteBorderOutlinedIcon/>
+                <FavoriteBorderOutlinedIcon onClick={()=>setClose(!close)}/>
                 <div className='carticon' onClick={()=>setOpen(!open)}>
                 <ShoppingCartOutlinedIcon />
-                <span>0</span>
+                <span>{products.length}</span>
                 </div>
             </div>
         </div>
     </div>
     {open && <Cart/>}
+    {close && <Login/>}
 </div>
   )
 }

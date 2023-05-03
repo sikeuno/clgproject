@@ -1,49 +1,62 @@
 import React from 'react'
 import "./Cart.scss"
 import { DeleteOutlined } from '@mui/icons-material'
+import { useSelector} from "react-redux"
+import { removeItem } from '../../Redux/Cartreducer'
+import { resetCart } from '../../Redux/Cartreducer'
+import { useDispatch } from 'react-redux';
+import {loadStripe} from '@stripe/stripe-js';
+import { makeRequest } from '../../makeRequest'
+
 const Cart = () => {
-    const data=[
-        {
-          id:1,
-          img:"https://assets.ajio.com/medias/sys_master/root/20230202/qw0F/63db8b98aeb269c6510bd35d/-473Wx593H-465700813-pink-MODEL4.jpg",
-          img1:"https://assets.ajio.com/medias/sys_master/root/20230202/2lfO/63db8b98aeb269c6510bd348/-1117Wx1400H-465700813-pink-MODEL.jpg",
-          title:"Saree",
-          isNew:true,
-          oldPrice:500,
-          newPrice:400,
-        },
-        {
-          id:2,
-          img:"https://assets.ajio.com/medias/sys_master/root/20221220/f6xp/63a0db4df997ddfdbde15712/-473Wx593H-465463355-peach-MODEL4.jpg",
-          img1:"https://assets.ajio.com/medias/sys_master/root/20221220/IllW/63a0db54f997ddfdbde157b4/-473Wx593H-465463355-peach-MODEL7.jpg",
-          title:"Saree",
-          isNew:true,
-          oldPrice:500,
-          newPrice:400,
-        },
-    ]
+  const products= useSelector(state=>state.cart.products)
+  const dispatch = useDispatch()
+
+  const totalprice=()=>{
+    let total=0;
+    products.forEach((item)=> (
+      total +=item.quantity*item.price ));
+      return total.toFixed(2);
+  };
+  const stripePromise = loadStripe('pk_test_51Mrg2tSA5xmEEIYXZln5KmBAGHyHcqq4pSy7IXPWx8hKfJybwzfSd9NQ3iHiTAWDSgMx5D3Uienne7QJ9IW4j8QJ00vJXtFEZi');
+  const handlePayment=async()=>{
+    try{
+
+      const stripe= await stripePromise;
+      const res= await makeRequest.post("/orders",{
+        products,
+      })
+      await stripe.redirectToCheckout({
+        sessionId: res.data.stripeSession.id,
+      })
+    }catch(err){
+      console.log(err)
+    }
+
+  }
+ 
   return (
     <div className='cart'>
         <h1>Products in cart</h1>
-        {data?.map((items)=>(
+        {products?.map((item)=>(
 
-            <div className='item' key={items.id}>
-                <img src={items.img} alt=""/>
+            <div className='item' key={item.id}>
+                <img src={process.env.REACT_APP_UPLOAD_URL +item.img} alt=""/>
                 <div className='details'>
-                    <h1 >{items.title}</h1>
-                    <p>{items.desc?.substring(0,100)}</p>
-                    <div className='price'>1*{items.newPrice}</div>
+                    <h1 >{item.title}</h1>
+                    <p>{item.descr?.substring(0,10)}</p>
+                    <div className='price'>{item.quantity}*{item.price}</div>
                 </div>
-                <DeleteOutlined className='delete'/>
+                <DeleteOutlined className='delete' onClick={()=>{ dispatch(removeItem(item.id))  }}/>
             </div>
         )
         )}
         <div className='total'>
             <span>SUBTOTOAL</span>
-            <span>1200</span>
+            <span>₹{totalprice()}</span>
         </div>
-        <button>PROCEED TO CHECKOUT</button>
-        <span className='reset'>Reset Cart</span>
+        <button onClick={handlePayment}>PROCEED TO CHECKOUT</button>
+        <span className='reset' onClick={()=>{ dispatch(resetCart())  }}>Reset Cart</span>
      </div>
   )
 }
